@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+*.env.local
+.DS_Store
+
+# Branding assets (design files, keep locally)
+BRANDING KIT/
+JPEG/
+PNG/
+Source/
+"curionauta pdf.pdf"
+CurioWorld/
