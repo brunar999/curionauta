@@ -8,6 +8,7 @@ import { useActiveStudent } from "@/context/StudentContext";
 import { useStudentStats, useStudentProgress } from "@/hooks/useProgress";
 import { apiFetch } from "@/lib/queryClient";
 import { formatTime } from "@/lib/utils";
+import { computeAchievements } from "@/lib/achievements";
 import type { Student, Grade } from "@shared/schema";
 
 // ── Student picker modal ───────────────────────────────────────────────────────
@@ -219,8 +220,15 @@ export default function Dashboard() {
                 padding: 32, color: "white", background: "var(--purple-600)",
                 border: "3px solid var(--purple-700)",
               }}>
-                <div className="chip" style={{ background: "rgba(255,255,255,0.25)", color: "white", marginBottom: 12 }}>
-                  📚 Bem-vindo de volta
+                <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+                  <div className="chip" style={{ background: "rgba(255,255,255,0.25)", color: "white" }}>
+                    📚 Bem-vindo de volta
+                  </div>
+                  {(activeStudent.streakCount ?? 0) > 1 && (
+                    <div className="chip" style={{ background: "rgba(255,193,74,0.35)", color: "white", fontWeight: 700 }}>
+                      🔥 {activeStudent.streakCount} dias seguidos
+                    </div>
+                  )}
                 </div>
                 <h1 style={{ color: "white", fontSize: 32, marginBottom: 8 }}>
                   Olá, {activeStudent.name}! 👋
@@ -299,6 +307,70 @@ export default function Dashboard() {
                 </div>
               </section>
             )}
+
+            {/* Achievements strip */}
+            {(() => {
+              const achievements = computeAchievements(progress ?? []);
+              const earned = achievements.filter((a) => a.earned);
+              const next = achievements.filter((a) => !a.earned).slice(0, 3);
+              return (
+                <section style={{ marginBottom: 36 }}>
+                  <div style={{ display: "flex", alignItems: "end", justifyContent: "space-between", marginBottom: 16 }}>
+                    <h2 style={{ fontSize: 26 }}>🏆 Conquistas</h2>
+                    <Link href="/conquistas" style={{ color: "var(--purple-600)", fontFamily: "Fredoka", fontWeight: 600 }}>
+                      Ver todas →
+                    </Link>
+                  </div>
+
+                  {earned.length > 0 && (
+                    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+                      {earned.map((a) => (
+                        <div key={a.id} title={a.title} style={{
+                          width: 56, height: 56, borderRadius: 16,
+                          background: "var(--yellow)", border: "3px solid var(--purple-700)",
+                          boxShadow: "0 4px 0 var(--purple-700)",
+                          display: "grid", placeItems: "center", fontSize: 28,
+                        }}>
+                          {a.emoji}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {next.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 13, color: "var(--ink-mute)", fontFamily: "Fredoka", fontWeight: 600, marginBottom: 10 }}>
+                        A seguir a desbloquear:
+                      </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12 }}>
+                        {next.map((a) => (
+                          <div key={a.id} className="card" style={{ padding: "14px 16px", display: "flex", gap: 12, alignItems: "center", opacity: 0.75 }}>
+                            <div style={{ fontSize: 30, filter: "grayscale(1)" }}>{a.emoji}</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontFamily: "Fredoka", fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{a.title}</div>
+                              <div className="progress" style={{ height: 6 }}>
+                                <div className="progress-fill" style={{ width: `${a.progress ?? 0}%` }} />
+                              </div>
+                              <div style={{ fontSize: 11, color: "var(--ink-mute)", marginTop: 3 }}>{a.progressLabel}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {earned.length === 0 && (
+                    <div className="card" style={{ padding: "20px 24px", display: "flex", gap: 16, alignItems: "center" }}>
+                      <div style={{ fontSize: 40 }}>🌱</div>
+                      <div>
+                        <div style={{ fontFamily: "Fredoka", fontSize: 17, fontWeight: 600 }}>Começa a tua coleção!</div>
+                        <div style={{ fontSize: 14, color: "var(--ink-mute)" }}>Conclui a tua primeira lição para ganhares a conquista "Primeiro Passo".</div>
+                      </div>
+                    </div>
+                  )}
+                </section>
+              );
+            })()}
 
             {/* Grades grid */}
             <section>

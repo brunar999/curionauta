@@ -8,6 +8,9 @@ import GradePage from "./pages/GradePage";
 import ThemePage from "./pages/ThemePage";
 import LessonPage from "./pages/LessonPage";
 import MetricsPage from "./pages/MetricsPage";
+import AchievementsPage from "./pages/AchievementsPage";
+import ParentDashboard from "./pages/ParentDashboard";
+import AdminPage from "./pages/AdminPage";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -56,6 +59,15 @@ export default function App() {
       </Route>
       <Route path="/metricas">
         <ProtectedRoute><MetricsPage /></ProtectedRoute>
+      </Route>
+      <Route path="/conquistas">
+        <ProtectedRoute><AchievementsPage /></ProtectedRoute>
+      </Route>
+      <Route path="/parent">
+        <ProtectedRoute><ParentDashboard /></ProtectedRoute>
+      </Route>
+      <Route path="/admin">
+        <ProtectedRoute><AdminPage /></ProtectedRoute>
       </Route>
       <Route>
         <Redirect to="/" />

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useUpdateProgress } from "@/hooks/useProgress";
 import { useActiveStudent } from "@/context/StudentContext";
+import TTSButton from "@/components/TTSButton";
 
 const QUESTIONS = [
   { q: "Qual é a estação do ano mais quente?", correct: 1, options: ["Primavera", "Verão", "Outono", "Inverno"] },
@@ -120,7 +121,10 @@ export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
         <div className="progress-fill" style={{ width: `${score}%` }} />
       </div>
 
-      <h2 style={{ fontSize: 28, marginBottom: 28 }}>{question.q}</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
+        <h2 style={{ fontSize: 28, margin: 0, flex: 1 }}>{question.q}</h2>
+        <TTSButton text={question.q} />
+      </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 28 }}>
         {question.options.map((opt, i) => {

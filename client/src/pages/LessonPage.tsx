@@ -7,6 +7,7 @@ import { useActiveStudent } from "@/context/StudentContext";
 import MonthsQuiz from "@/components/lessons/MonthsQuiz";
 import SeasonsQuiz from "@/components/lessons/SeasonsQuiz";
 import AnimalsDragDrop from "@/components/lessons/AnimalsDragDrop";
+import TTSButton from "@/components/TTSButton";
 import type { Lesson, Theme, Grade } from "@shared/schema";
 
 interface LessonPart {
@@ -20,12 +21,21 @@ interface Props {
   lessonId: number;
 }
 
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function LessonContent({ html }: { html: string }) {
   return (
-    <div
-      className="lesson-content"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
+    <>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+        <TTSButton text={stripHtml(html)} />
+      </div>
+      <div
+        className="lesson-content"
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </>
   );
 }
 
@@ -210,6 +220,7 @@ export default function LessonPage({ lessonId }: Props) {
           </div>
 
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <TTSButton text={lesson.title} />
             <span className="chip" style={{ background: "var(--green-100)", color: "var(--green-600)", fontSize: 12 }}>
               ⏱ {lesson.duration} min
             </span>

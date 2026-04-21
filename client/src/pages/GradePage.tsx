@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import { apiFetch } from "@/lib/queryClient";
 import { useStudentProgress } from "@/hooks/useProgress";
 import { useActiveStudent } from "@/context/StudentContext";
-import type { Grade, Theme, LessonProgress } from "@shared/schema";
+import type { Grade, Theme, Lesson, LessonProgress } from "@shared/schema";
 
 interface Props {
   gradeId: number;
@@ -13,14 +13,20 @@ interface Props {
 
 function ThemeCard({
   theme,
-  progress,
-  totalLessons,
+  allProgress,
 }: {
   theme: Theme;
-  progress: LessonProgress[];
-  totalLessons: number;
+  allProgress: LessonProgress[];
 }) {
-  const completed = progress.filter((p) => p.status === "completed").length;
+  const { data: lessons } = useQuery({
+    queryKey: ["lessons", theme.id],
+    queryFn: () => apiFetch<{ id: number }[]>(`/api/themes/${theme.id}/lessons`),
+  });
+
+  const lessonIds = lessons?.map((l) => l.id) ?? [];
+  const themeProgress = allProgress.filter((p) => lessonIds.includes(p.lessonId));
+  const completed = themeProgress.filter((p) => p.status === "completed").length;
+  const totalLessons = lessons?.length ?? 0;
   const pct = totalLessons > 0 ? (completed / totalLessons) * 100 : 0;
 
   return (
@@ -73,13 +79,8 @@ export default function GradePage({ gradeId }: Props) {
   const { activeStudent } = useActiveStudent();
   const { data: allProgress } = useStudentProgress(activeStudent?.id);
 
-  function getThemeProgress(themeId: number, lessons: number[]): LessonProgress[] {
-    if (!allProgress) return [];
-    return allProgress.filter((p) => lessons.includes(p.lessonId));
-  }
-
   const gradeIcons = ["🌱", "🌿", "🌳", "🚀"];
-  const gradeIdx = (grade?.number ?? 1) - 1;
+  const gradeIdx = Math.max(0, Math.min((grade?.number ?? 1) - 1, gradeIcons.length - 1));
 
   return (
     <div>
@@ -124,8 +125,7 @@ export default function GradePage({ gradeId }: Props) {
               <ThemeCard
                 key={t.id}
                 theme={t}
-                progress={getThemeProgress(t.id, [])}
-                totalLessons={0}
+                allProgress={allProgress ?? []}
               />
             ))}
           </div>

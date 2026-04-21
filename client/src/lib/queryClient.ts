@@ -14,13 +14,14 @@ export async function apiFetch<T>(
   url: string,
   options?: RequestInit
 ): Promise<T> {
+  const isWrite = options?.method && options.method !== "GET";
   const res = await fetch(url, {
-    headers: { "Content-Type": "application/json" },
+    headers: isWrite ? { "Content-Type": "application/json" } : {},
     ...options,
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(err?.error || `HTTP ${res.status}`);
   }
-  return res.json();
+  return res.json().catch(() => ({}) as T);
 }

@@ -1,6 +1,8 @@
 import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth, useLogout } from "@/hooks/useAuth";
 import { useActiveStudent } from "@/context/StudentContext";
+import { apiFetch } from "@/lib/queryClient";
 
 interface HeaderProps {
   variant?: "public" | "app";
@@ -11,6 +13,15 @@ export default function Header({ variant }: HeaderProps) {
   const { isAuthenticated } = useAuth();
   const { mutate: logout } = useLogout();
   const { activeStudent } = useActiveStudent();
+
+  const { data: adminCheck } = useQuery({
+    queryKey: ["admin-check"],
+    queryFn: () => apiFetch("/api/admin/check"),
+    enabled: isAuthenticated,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+  const isAdmin = !!adminCheck;
 
   const isPublic = variant === "public" || !isAuthenticated;
 
@@ -55,6 +66,28 @@ export default function Header({ variant }: HeaderProps) {
                   📊 Métricas
                 </Link>
               )}
+              {activeStudent && (
+                <Link
+                  href="/conquistas"
+                  className={`nav-link ${location === "/conquistas" ? "active" : ""}`}
+                >
+                  🏆 Conquistas
+                </Link>
+              )}
+              <Link
+                href="/parent"
+                className={`nav-link ${location === "/parent" ? "active" : ""}`}
+              >
+                👨‍👩‍👧 Pais
+              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className={`nav-link ${location === "/admin" ? "active" : ""}`}
+                >
+                  🔧 Admin
+                </Link>
+              )}
             </>
           ) : (
             <>
@@ -77,6 +110,11 @@ export default function Header({ variant }: HeaderProps) {
                   <span style={{ fontFamily: "Fredoka", fontWeight: 600, fontSize: 15, color: "var(--purple-700)" }}>
                     {activeStudent.name}
                   </span>
+                  {(activeStudent.streakCount ?? 0) > 1 && (
+                    <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 13, color: "var(--yellow)", background: "var(--purple-700)", borderRadius: 999, padding: "2px 8px" }}>
+                      🔥 {activeStudent.streakCount}
+                    </span>
+                  )}
                 </div>
               )}
               <button

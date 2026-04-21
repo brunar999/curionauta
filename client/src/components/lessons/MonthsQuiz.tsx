@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useUpdateProgress } from "@/hooks/useProgress";
 import { useActiveStudent } from "@/context/StudentContext";
+import TTSButton from "@/components/TTSButton";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -42,6 +43,9 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
   const timeSpentRef = useRef(0);
   const correctRef = useRef(0);
   const totalRef = useRef(0);
+  const isCompleteRef = useRef(false);
+  const activeStudentRef = useRef(activeStudent);
+  activeStudentRef.current = activeStudent;
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -50,9 +54,9 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
 
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (activeStudent && score < 100) {
+      if (!isCompleteRef.current && activeStudentRef.current) {
         updateProgress.mutate({
-          studentId: activeStudent.id,
+          studentId: activeStudentRef.current.id,
           lessonId,
           status: "in_progress",
           timeSpent: timeSpentRef.current,
@@ -99,6 +103,7 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
 
   function finishQuiz() {
     if (!activeStudent) return;
+    isCompleteRef.current = true;
     const timeSpent = Math.floor((Date.now() - startTime.current) / 1000);
     updateProgress.mutate({
       studentId: activeStudent.id,
@@ -147,7 +152,10 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
         <div className="progress-fill" style={{ width: `${score}%` }} />
       </div>
 
-      <h2 style={{ fontSize: 28, marginBottom: 28 }}>{question.q}</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
+        <h2 style={{ fontSize: 28, margin: 0, flex: 1 }}>{question.q}</h2>
+        <TTSButton text={question.q} />
+      </div>
 
       {/* Options */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 14, marginBottom: 28 }}>

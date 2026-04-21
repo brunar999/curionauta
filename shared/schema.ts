@@ -6,6 +6,7 @@ import {
   pgTable,
   text,
   timestamp,
+  date,
   varchar,
   unique,
   boolean,
@@ -54,6 +55,8 @@ export const students = pgTable(
     name: varchar("name", { length: 100 }).notNull(),
     currentGradeId: integer("current_grade_id").references(() => grades.id),
     avatarEmoji: varchar("avatar_emoji", { length: 10 }).default("🧒"),
+    streakCount: integer("streak_count").default(0),
+    lastCompletedDate: date("last_completed_date"),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (t) => [index("idx_students_user").on(t.userId)]

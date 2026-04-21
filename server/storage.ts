@@ -12,8 +12,11 @@ import {
   type Student,
   type InsertStudent,
   type Grade,
+  type InsertGrade,
   type Theme,
+  type InsertTheme,
   type Lesson,
+  type InsertLesson,
   type LessonProgress,
   type InsertLessonProgress,
 } from "@shared/schema";
@@ -71,7 +74,7 @@ export async function createStudent(
 
 export async function updateStudent(
   id: number,
-  data: Partial<{ name: string; currentGradeId: number; avatarEmoji: string }>
+  data: Partial<{ name: string; currentGradeId: number; avatarEmoji: string; streakCount: number; lastCompletedDate: string }>
 ): Promise<Student> {
   const [student] = await db
     .update(students)
@@ -79,6 +82,27 @@ export async function updateStudent(
     .where(eq(students.id, id))
     .returning();
   return student;
+}
+
+export async function updateStreak(studentId: number): Promise<void> {
+  const student = await getStudentById(studentId);
+  if (!student) return;
+
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const last = student.lastCompletedDate;
+
+  if (last === today) {
+    // Already updated today, no-op
+    return;
+  }
+
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  const newStreak = last === yesterday ? (student.streakCount ?? 0) + 1 : 1;
+
+  await db
+    .update(students)
+    .set({ streakCount: newStreak, lastCompletedDate: today })
+    .where(eq(students.id, studentId));
 }
 
 export async function deleteStudent(id: number): Promise<void> {
@@ -167,7 +191,8 @@ export async function upsertLessonProgress(
       delete data.status;
     }
     const updateData: Record<string, unknown> = { ...data };
-    if (data.status === "completed" && !existing.completedAt) {
+    const becomingCompleted = data.status === "completed" && existing.status !== "completed";
+    if (becomingCompleted) {
       updateData.completedAt = new Date();
     }
     const [updated] = await db
@@ -175,6 +200,7 @@ export async function upsertLessonProgress(
       .set(updateData)
       .where(eq(lessonProgress.id, existing.id))
       .returning();
+    if (becomingCompleted && studentId) await updateStreak(studentId);
     return updated;
   }
 
@@ -188,7 +214,61 @@ export async function upsertLessonProgress(
   };
 
   const [created] = await db.insert(lessonProgress).values(insertData).returning();
+  if (data.status === "completed" && studentId) await updateStreak(studentId);
   return created;
+}
+
+// ── Admin: Grades ──────────────────────────────────────────────────────────────
+export async function createGrade(data: Omit<InsertGrade, "id" | "createdAt">): Promise<Grade> {
+  const [grade] = await db.insert(grades).values(data).returning();
+  return grade;
+}
+
+export async function updateGrade(id: number, data: Partial<Omit<InsertGrade, "id" | "createdAt">>): Promise<Grade> {
+  const [grade] = await db.update(grades).set(data).where(eq(grades.id, id)).returning();
+  return grade;
+}
+
+export async function deleteGrade(id: number): Promise<void> {
+  await db.delete(grades).where(eq(grades.id, id));
+}
+
+// ── Admin: Themes ──────────────────────────────────────────────────────────────
+export async function createTheme(data: Omit<InsertTheme, "id" | "createdAt">): Promise<Theme> {
+  const [theme] = await db.insert(themes).values(data).returning();
+  return theme;
+}
+
+export async function updateTheme(id: number, data: Partial<Omit<InsertTheme, "id" | "createdAt">>): Promise<Theme> {
+  const [theme] = await db.update(themes).set(data).where(eq(themes.id, id)).returning();
+  return theme;
+}
+
+export async function deleteTheme(id: number): Promise<void> {
+  await db.delete(themes).where(eq(themes.id, id));
+}
+
+// ── Admin: Lessons ─────────────────────────────────────────────────────────────
+export async function createLesson(data: Omit<InsertLesson, "id" | "createdAt" | "updatedAt">): Promise<Lesson> {
+  const [lesson] = await db.insert(lessons).values(data).returning();
+  return lesson;
+}
+
+export async function updateLesson(id: number, data: Partial<Omit<InsertLesson, "id" | "createdAt">>): Promise<Lesson> {
+  const [lesson] = await db.update(lessons).set({ ...data, updatedAt: new Date() }).where(eq(lessons.id, id)).returning();
+  return lesson;
+}
+
+export async function deleteLesson(id: number): Promise<void> {
+  await db.delete(lessons).where(eq(lessons.id, id));
+}
+
+export async function getAllLessons(): Promise<Lesson[]> {
+  return db.select().from(lessons).orderBy(asc(lessons.themeId), asc(lessons.order));
+}
+
+export async function getAllThemes(): Promise<Theme[]> {
+  return db.select().from(themes).orderBy(asc(themes.gradeId), asc(themes.order));
 }
 
 // ── Dashboard stats ────────────────────────────────────────────────────────────

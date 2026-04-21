@@ -17,7 +17,19 @@ import {
   getStudentStats,
   createUser,
   getUserByEmail,
+  getUserById,
   verifyPassword,
+  createGrade,
+  updateGrade,
+  deleteGrade,
+  createTheme,
+  updateTheme,
+  deleteTheme,
+  createLesson,
+  updateLesson,
+  deleteLesson,
+  getAllLessons,
+  getAllThemes,
 } from "./storage";
 
 const router = Router();
@@ -81,6 +93,21 @@ router.get("/auth/me", (req: Request, res: Response) => {
 function requireAuth(req: Request, res: Response, next: () => void) {
   if (!req.session.userId) {
     return res.status(401).json({ error: "Não autenticado" });
+  }
+  next();
+}
+
+async function requireAdmin(req: Request, res: Response, next: () => void) {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: "Não autenticado" });
+  }
+  const adminEmail = process.env.ADMIN_EMAIL;
+  if (!adminEmail) {
+    return res.status(403).json({ error: "Admin não configurado" });
+  }
+  const user = await getUserById(req.session.userId);
+  if (!user || user.email !== adminEmail) {
+    return res.status(403).json({ error: "Sem permissão de administrador" });
   }
   next();
 }
@@ -193,6 +220,99 @@ router.post("/progress", requireAuth, async (req: Request, res: Response) => {
     starsEarned,
   });
   res.json(progress);
+});
+
+// ── Admin ──────────────────────────────────────────────────────────────────────
+router.get("/admin/check", requireAdmin as any, (_req: Request, res: Response) => {
+  res.json({ ok: true });
+});
+
+// Admin: list all content
+router.get("/admin/grades", requireAdmin as any, async (_req: Request, res: Response) => {
+  const data = await getAllGrades();
+  res.json(data);
+});
+
+router.get("/admin/themes", requireAdmin as any, async (_req: Request, res: Response) => {
+  const data = await getAllThemes();
+  res.json(data);
+});
+
+router.get("/admin/lessons", requireAdmin as any, async (_req: Request, res: Response) => {
+  const data = await getAllLessons();
+  res.json(data);
+});
+
+// Admin: Grades CRUD
+router.post("/admin/grades", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const grade = await createGrade(req.body);
+    res.json(grade);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao criar ano" });
+  }
+});
+
+router.patch("/admin/grades/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const grade = await updateGrade(Number(req.params.id), req.body);
+    res.json(grade);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao atualizar ano" });
+  }
+});
+
+router.delete("/admin/grades/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  await deleteGrade(Number(req.params.id));
+  res.json({ ok: true });
+});
+
+// Admin: Themes CRUD
+router.post("/admin/themes", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const theme = await createTheme(req.body);
+    res.json(theme);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao criar tema" });
+  }
+});
+
+router.patch("/admin/themes/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const theme = await updateTheme(Number(req.params.id), req.body);
+    res.json(theme);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao atualizar tema" });
+  }
+});
+
+router.delete("/admin/themes/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  await deleteTheme(Number(req.params.id));
+  res.json({ ok: true });
+});
+
+// Admin: Lessons CRUD
+router.post("/admin/lessons", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const lesson = await createLesson(req.body);
+    res.json(lesson);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao criar lição" });
+  }
+});
+
+router.patch("/admin/lessons/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  try {
+    const lesson = await updateLesson(Number(req.params.id), req.body);
+    res.json(lesson);
+  } catch (err) {
+    res.status(400).json({ error: "Erro ao atualizar lição" });
+  }
+});
+
+router.delete("/admin/lessons/:id", requireAdmin as any, async (req: Request, res: Response) => {
+  await deleteLesson(Number(req.params.id));
+  res.json({ ok: true });
 });
 
 export default router;
