@@ -21,8 +21,19 @@ interface Props {
   onComplete: () => void;
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
-  const [currentQ, setCurrentQ] = useState(0);
+  const [pool, setPool] = useState(() => shuffle(QUESTIONS));
+  const [poolIdx, setPoolIdx] = useState(0);
+  const [questionCount, setQuestionCount] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
@@ -55,7 +66,7 @@ export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
 
   function handleConfirm() {
     if (selected === null) return;
-    const isCorrect = selected === QUESTIONS[currentQ].correct;
+    const isCorrect = selected === pool[poolIdx].correct;
     setSubmitted(true);
 
     const newTotal = totalRef.current + 1;
@@ -70,13 +81,20 @@ export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
   }
 
   function handleNext() {
-    if (currentQ + 1 >= QUESTIONS.length || score >= 100) {
+    if (score >= 100) {
       finishQuiz();
-    } else {
-      setCurrentQ((prev) => prev + 1);
-      setSelected(null);
-      setSubmitted(false);
+      return;
     }
+    const nextIdx = poolIdx + 1;
+    if (nextIdx >= pool.length) {
+      setPool(shuffle([...QUESTIONS]));
+      setPoolIdx(0);
+    } else {
+      setPoolIdx(nextIdx);
+    }
+    setQuestionCount((n) => n + 1);
+    setSelected(null);
+    setSubmitted(false);
   }
 
   function finishQuiz() {
@@ -110,13 +128,13 @@ export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
     );
   }
 
-  const question = QUESTIONS[currentQ];
+  const question = pool[poolIdx];
   const isCorrect = selected === question.correct;
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <div className="chip chip-coral">🌸 Pergunta {currentQ + 1} de {QUESTIONS.length}</div>
+        <div className="chip chip-coral">🌸 Questão {questionCount + 1}</div>
         <span className="chip chip-green">Score: {score}%</span>
       </div>
 
@@ -218,7 +236,7 @@ export default function SeasonsQuiz({ lessonId, onComplete }: Props) {
           </button>
         ) : (
           <button className="btn btn-green btn-lg" onClick={handleNext}>
-            {currentQ + 1 >= QUESTIONS.length || score >= 100 ? "Terminar quiz →" : "Próxima →"}
+            {score >= 100 ? "Terminar quiz →" : "Próxima →"}
           </button>
         )}
       </div>

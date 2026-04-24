@@ -271,6 +271,39 @@ export async function getAllThemes(): Promise<Theme[]> {
   return db.select().from(themes).orderBy(asc(themes.gradeId), asc(themes.order));
 }
 
+// ── Quiz review ────────────────────────────────────────────────────────────────
+export async function getCompletedLessonsWithQuiz(studentId: number) {
+  const progress = await db
+    .select()
+    .from(lessonProgress)
+    .where(and(eq(lessonProgress.studentId, studentId), eq(lessonProgress.status, "completed")))
+    .orderBy(desc(lessonProgress.completedAt));
+
+  const results = await Promise.all(
+    progress.map(async (p) => {
+      const lesson = await getLessonById(p.lessonId);
+      if (!lesson) return null;
+      const parts = (lesson.parts ?? []) as Array<{ questions?: unknown[] }>;
+      const questions: unknown[] = [];
+      for (const part of parts) {
+        if (Array.isArray(part.questions)) questions.push(...part.questions);
+      }
+      return {
+        lessonId: lesson.id,
+        title: lesson.title,
+        type: lesson.type,
+        completedAt: p.completedAt,
+        correctAnswers: p.correctAnswers ?? 0,
+        totalAnswers: p.totalAnswers ?? 0,
+        starsEarned: p.starsEarned ?? 0,
+        questions,
+      };
+    })
+  );
+
+  return results.filter(Boolean);
+}
+
 // ── Dashboard stats ────────────────────────────────────────────────────────────
 export async function getStudentStats(studentId: number) {
   const allProgress = await getProgressByStudent(studentId);

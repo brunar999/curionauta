@@ -15,8 +15,19 @@ interface Props {
   questions: QuizQuestion[];
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function GenericQuiz({ lessonId, onComplete, questions }: Props) {
-  const [currentQ, setCurrentQ] = useState(0);
+  const [pool, setPool] = useState<QuizQuestion[]>(() => shuffle(questions));
+  const [poolIdx, setPoolIdx] = useState(0);
+  const [questionCount, setQuestionCount] = useState(0); // running total of questions shown
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState(0);
@@ -64,7 +75,7 @@ export default function GenericQuiz({ lessonId, onComplete, questions }: Props) 
 
   function handleConfirm() {
     if (selected === null) return;
-    const isCorrect = selected === questions[currentQ].answer;
+    const isCorrect = selected === pool[poolIdx].answer;
     setSubmitted(true);
 
     const newTotal = totalRef.current + 1;
@@ -83,13 +94,22 @@ export default function GenericQuiz({ lessonId, onComplete, questions }: Props) 
   }
 
   function handleNext() {
-    if (currentQ + 1 >= questions.length || score >= 100) {
+    // Only complete when score reaches 100%
+    if (score >= 100) {
       finishQuiz();
-    } else {
-      setCurrentQ((prev) => prev + 1);
-      setSelected(null);
-      setSubmitted(false);
+      return;
     }
+    // Advance pool, reshuffling when exhausted
+    const nextIdx = poolIdx + 1;
+    if (nextIdx >= pool.length) {
+      setPool(shuffle([...questions]));
+      setPoolIdx(0);
+    } else {
+      setPoolIdx(nextIdx);
+    }
+    setQuestionCount((n) => n + 1);
+    setSelected(null);
+    setSubmitted(false);
   }
 
   function finishQuiz() {
@@ -127,13 +147,13 @@ export default function GenericQuiz({ lessonId, onComplete, questions }: Props) 
     );
   }
 
-  const question = questions[currentQ];
+  const question = pool[poolIdx];
   const isCorrect = selected === question.answer;
 
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <div className="chip chip-coral">🎯 Pergunta {currentQ + 1} de {questions.length}</div>
+        <div className="chip chip-coral">🎯 Questão {questionCount + 1}</div>
         <div style={{ display: "flex", gap: 12 }}>
           <span className="chip chip-green">✓ {correctAnswers}</span>
           <span className="chip chip-coral">Score: {score}%</span>
@@ -143,7 +163,7 @@ export default function GenericQuiz({ lessonId, onComplete, questions }: Props) 
       <div style={{ position: "relative", marginBottom: 28 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
           <span style={{ fontFamily: "Fredoka", fontWeight: 600, fontSize: 13, color: "var(--ink-mute)" }}>
-            {score === 0 ? "Começa a responder!" : score >= 100 ? "🏆 Máximo!" : ""}
+            {score === 0 ? "Começa a responder!" : score >= 70 ? "Quase lá! 💪" : ""}
           </span>
           <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 16, color: score >= 70 ? "var(--green-600)" : "var(--purple-700)" }}>
             {score}%
@@ -247,7 +267,7 @@ export default function GenericQuiz({ lessonId, onComplete, questions }: Props) 
           </button>
         ) : (
           <button className="btn btn-green btn-lg" onClick={handleNext}>
-            {currentQ + 1 >= questions.length || score >= 100 ? "Terminar quiz →" : "Próxima →"}
+            {score >= 100 ? "Terminar quiz →" : "Próxima →"}
           </button>
         )}
       </div>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { apiFetch } from "@/lib/queryClient";
@@ -12,6 +13,146 @@ interface StudentStats {
   completedLessons: number;
   inProgressLessons: number;
   totalTimeSeconds: number;
+}
+
+interface QuizQuestion {
+  q: string;
+  options: string[];
+  answer: number;
+}
+
+interface CompletedLesson {
+  lessonId: number;
+  title: string;
+  type: string;
+  completedAt: string | null;
+  correctAnswers: number;
+  totalAnswers: number;
+  starsEarned: number;
+  questions: QuizQuestion[];
+}
+
+function QuizReviewSection({ studentId }: { studentId: number }) {
+  const [open, setOpen] = useState(false);
+  const [expandedLesson, setExpandedLesson] = useState<number | null>(null);
+
+  const { data, isLoading } = useQuery<CompletedLesson[]>({
+    queryKey: ["quiz-review", studentId],
+    queryFn: () => apiFetch(`/api/students/${studentId}/quiz-review`),
+    enabled: open,
+  });
+
+  const lessonsWithQuiz = data?.filter((l) => l.questions.length > 0) ?? [];
+
+  return (
+    <div style={{ marginTop: 16 }}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="btn btn-ghost btn-sm"
+        style={{ width: "100%", justifyContent: "center", borderStyle: "dashed" }}
+      >
+        {open ? "▲ Fechar revisão" : "📝 Rever Quizzes"}
+      </button>
+
+      {open && (
+        <div style={{ marginTop: 14 }}>
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "20px", color: "var(--ink-mute)", fontSize: 14 }}>
+              A carregar… 🦦
+            </div>
+          ) : lessonsWithQuiz.length === 0 ? (
+            <div style={{
+              textAlign: "center", padding: "16px",
+              background: "var(--cream)", borderRadius: 12,
+              color: "var(--ink-mute)", fontSize: 14,
+            }}>
+              Nenhum quiz concluído ainda.
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {lessonsWithQuiz.map((lesson) => (
+                <div
+                  key={lesson.lessonId}
+                  style={{ background: "var(--cream)", borderRadius: 12, overflow: "hidden" }}
+                >
+                  <button
+                    onClick={() => setExpandedLesson(expandedLesson === lesson.lessonId ? null : lesson.lessonId)}
+                    style={{
+                      width: "100%", textAlign: "left", padding: "12px 16px",
+                      background: "none", border: "none", cursor: "pointer",
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontFamily: "Fredoka", fontWeight: 600, fontSize: 15 }}>
+                        {lesson.title}
+                      </div>
+                      {lesson.totalAnswers > 0 && (
+                        <div style={{ fontSize: 12, color: "var(--ink-mute)", marginTop: 2 }}>
+                          ✓ {lesson.correctAnswers}/{lesson.totalAnswers} corretas
+                          {lesson.starsEarned > 0 && ` · ${"⭐".repeat(lesson.starsEarned)}`}
+                        </div>
+                      )}
+                    </div>
+                    <span style={{ color: "var(--ink-mute)", fontSize: 12 }}>
+                      {expandedLesson === lesson.lessonId ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {expandedLesson === lesson.lessonId && (
+                    <div style={{ padding: "0 16px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+                      {lesson.questions.map((q, qi) => (
+                        <div key={qi} style={{
+                          background: "white", borderRadius: 10, padding: "12px 14px",
+                          border: "1.5px solid var(--line)",
+                        }}>
+                          <div style={{ fontFamily: "Fredoka", fontWeight: 600, fontSize: 14, marginBottom: 8, color: "var(--ink)" }}>
+                            {qi + 1}. {q.q}
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                            {q.options.map((opt, oi) => {
+                              const isCorrect = oi === q.answer;
+                              return (
+                                <div
+                                  key={oi}
+                                  style={{
+                                    display: "flex", alignItems: "center", gap: 8,
+                                    padding: "6px 10px", borderRadius: 8,
+                                    background: isCorrect ? "var(--green-100)" : "transparent",
+                                    border: isCorrect ? "1.5px solid var(--green-500)" : "1.5px solid transparent",
+                                  }}
+                                >
+                                  <div style={{
+                                    width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+                                    background: isCorrect ? "var(--green-500)" : "var(--line)",
+                                    display: "grid", placeItems: "center",
+                                    color: "white", fontSize: 11, fontWeight: 700,
+                                  }}>
+                                    {isCorrect ? "✓" : ""}
+                                  </div>
+                                  <span style={{
+                                    fontSize: 13,
+                                    fontWeight: isCorrect ? 700 : 400,
+                                    color: isCorrect ? "var(--green-600)" : "var(--ink-soft)",
+                                  }}>
+                                    {opt}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function StudentCard({ student, grades }: { student: Student; grades: Grade[] }) {
@@ -82,9 +223,11 @@ function StudentCard({ student, grades }: { student: Student; grades: Grade[] })
         </div>
       )}
 
-      <button className="btn btn-primary btn-sm" onClick={handleView} style={{ width: "100%", justifyContent: "center" }}>
+      <button className="btn btn-primary btn-sm" onClick={handleView} style={{ width: "100%", justifyContent: "center", marginBottom: 0 }}>
         Ver métricas detalhadas →
       </button>
+
+      <QuizReviewSection studentId={student.id} />
     </div>
   );
 }

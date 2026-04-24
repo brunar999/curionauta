@@ -30,6 +30,7 @@ import {
   deleteLesson,
   getAllLessons,
   getAllThemes,
+  getCompletedLessonsWithQuiz,
 } from "./storage";
 
 const router = Router();
@@ -200,6 +201,15 @@ router.get("/students/:id/stats", requireAuth, async (req: Request, res: Respons
   }
   const stats = await getStudentStats(Number(req.params.id));
   res.json(stats);
+});
+
+router.get("/students/:id/quiz-review", requireAuth, async (req: Request, res: Response) => {
+  const student = await getStudentById(Number(req.params.id));
+  if (!student || student.userId !== req.session.userId) {
+    return res.status(403).json({ error: "Sem permissão" });
+  }
+  const data = await getCompletedLessonsWithQuiz(Number(req.params.id));
+  res.json(data);
 });
 
 router.post("/progress", requireAuth, async (req: Request, res: Response) => {
