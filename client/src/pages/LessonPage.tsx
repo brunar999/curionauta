@@ -144,9 +144,7 @@ export default function LessonPage({ lessonId }: Props) {
         {/* Minimal header */}
         <div style={{ background: "white", borderBottom: "2px solid var(--line)", padding: "14px 0" }}>
           <div className="container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 22, color: "var(--purple-700)" }}>
-              CurioNauta 🦦
-            </span>
+            <img src="/logo.png" alt="CurioNauta" style={{ height: 36, width: "auto" }} />
           </div>
         </div>
 

@@ -46,10 +46,7 @@ export default function Login() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <Link href="/">
-            <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 36, color: "var(--purple-700)", letterSpacing: "-0.02em", cursor: "pointer" }}>
-              Curio<span style={{ color: "var(--green-500)" }}>Nauta</span>
-              <span style={{ fontSize: 32, marginLeft: 4 }}>🦦</span>
-            </span>
+            <img src="/logo.png" alt="CurioNauta" style={{ height: 64, width: "auto", cursor: "pointer" }} />
           </Link>
         </div>
 

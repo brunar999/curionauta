@@ -36,10 +36,7 @@ export default function Header({ variant }: HeaderProps) {
       <div className="container site-header-inner">
         {/* Brand */}
         <Link href={isAuthenticated ? "/dashboard" : "/"} className="brand">
-          <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 28, color: "var(--purple-700)", letterSpacing: "-0.02em" }}>
-            Curio<span style={{ color: "var(--green-500)" }}>Nauta</span>
-            <span style={{ fontSize: 22, marginLeft: 4 }}>🦦</span>
-          </span>
+          <img src="/logo.png" alt="CurioNauta" style={{ height: 44, width: "auto" }} />
         </Link>
 
         {/* Nav links */}
