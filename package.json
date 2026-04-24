@@ -11,6 +11,7 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx server/seed.ts",
     "db:accounts": "tsx server/seed-accounts.ts",
+    "db:lessons-corpo": "tsx server/seed-lessons-corpo.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

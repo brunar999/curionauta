@@ -7,6 +7,7 @@ import { useActiveStudent } from "@/context/StudentContext";
 import MonthsQuiz from "@/components/lessons/MonthsQuiz";
 import SeasonsQuiz from "@/components/lessons/SeasonsQuiz";
 import AnimalsDragDrop from "@/components/lessons/AnimalsDragDrop";
+import GenericQuiz, { type QuizQuestion } from "@/components/lessons/GenericQuiz";
 import TTSButton from "@/components/TTSButton";
 import type { Lesson, Theme, Grade } from "@shared/schema";
 
@@ -15,6 +16,7 @@ interface LessonPart {
   title: string;
   content?: string;
   componentId?: string;
+  questions?: QuizQuestion[];
 }
 
 interface Props {
@@ -43,10 +45,12 @@ function InteractiveComponent({
   componentId,
   lessonId,
   onComplete,
+  questions,
 }: {
   componentId: string;
   lessonId: number;
   onComplete: () => void;
+  questions?: QuizQuestion[];
 }) {
   switch (componentId) {
     case "MonthsQuiz":
@@ -55,6 +59,10 @@ function InteractiveComponent({
       return <SeasonsQuiz lessonId={lessonId} onComplete={onComplete} />;
     case "AnimalsDragDrop":
       return <AnimalsDragDrop lessonId={lessonId} onComplete={onComplete} />;
+    case "GenericQuiz":
+      return questions?.length
+        ? <GenericQuiz lessonId={lessonId} onComplete={onComplete} questions={questions} />
+        : <div style={{ textAlign: "center", padding: 40, color: "var(--ink-mute)" }}>Sem perguntas disponíveis.</div>;
     default:
       return (
         <div style={{ textAlign: "center", padding: 40, color: "var(--ink-mute)" }}>
@@ -279,6 +287,7 @@ export default function LessonPage({ lessonId }: Props) {
                 componentId={currentPartData.componentId}
                 lessonId={lessonId}
                 onComplete={isLastPart ? handleLessonComplete : handlePartComplete}
+                questions={currentPartData.questions}
               />
             ) : null}
           </div>
