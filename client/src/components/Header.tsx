@@ -36,7 +36,7 @@ export default function Header({ variant }: HeaderProps) {
       <div className="container site-header-inner">
         {/* Brand */}
         <Link href={isAuthenticated ? "/dashboard" : "/"} className="brand">
-          <img src="/logo.png" alt="CurioNauta" style={{ height: 60, width: "auto" }} />
+          <img src="/logo.png" alt="CurioNauta" style={{ height: 160, width: "auto", margin: "-30px 0" }} />
         </Link>
 
         {/* Nav links */}
@@ -55,14 +55,6 @@ export default function Header({ variant }: HeaderProps) {
               >
                 📚 Lições
               </Link>
-              {activeStudent && (
-                <Link
-                  href="/metricas"
-                  className={`nav-link ${location === "/metricas" ? "active" : ""}`}
-                >
-                  📊 Métricas
-                </Link>
-              )}
               {activeStudent && (
                 <Link
                   href="/conquistas"
