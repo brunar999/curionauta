@@ -46,7 +46,7 @@ export default function Login() {
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <Link href="/">
-            <img src="/logo.png" alt="CurioNauta" style={{ height: 80, width: "auto", cursor: "pointer" }} />
+            <img src="/logo.png" alt="CurioNauta" style={{ height: 220, width: "auto", cursor: "pointer", margin: "-40px 0" }} />
           </Link>
         </div>
 
