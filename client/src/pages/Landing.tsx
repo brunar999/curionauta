@@ -43,7 +43,7 @@ export default function Landing() {
 
       {/* Hero */}
       <section style={{
-        background: "var(--green-500)",
+        background: "var(--purple-600)",
         paddingBottom: 0,
         overflow: "hidden",
         position: "relative",
@@ -106,34 +106,24 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Hero mascot card */}
-            <div style={{ position: "relative", minHeight: 420 }}>
-              <div className="wobble" style={{
-                position: "absolute", top: "50%", left: "50%",
-                transform: "translate(-50%, -50%) rotate(-3deg)",
-                background: "white", border: "4px solid var(--purple-700)",
-                borderRadius: 32, padding: 18, boxShadow: "0 14px 0 var(--purple-700)", width: 340,
-              }}>
-                <div style={{
-                  background: "var(--green-100)", borderRadius: 22, padding: 32,
-                  textAlign: "center",
-                }}>
-                  <div style={{ fontSize: 100 }}>🦦</div>
-                  <div style={{
-                    fontFamily: "Fredoka", fontSize: 22, fontWeight: 700,
-                    color: "var(--purple-700)", marginTop: 8,
-                  }}>
-                    Olá! Sou o CurioNauta!
-                  </div>
-                </div>
-                <div style={{ textAlign: "center", marginTop: 14, fontFamily: "Fredoka", color: "var(--ink-soft)", fontWeight: 500, fontSize: 16 }}>
-                  Vamos descobrir juntos? 🔬
-                </div>
+            {/* Hero mascot */}
+            <div style={{ position: "relative", minHeight: 420, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div className="wobble" style={{ position: "relative", display: "inline-block" }}>
+                <img
+                  src="/mascot.jpg"
+                  alt="CurioNauta mascot"
+                  style={{
+                    width: 380, height: "auto", borderRadius: 36,
+                    border: "4px solid rgba(255,255,255,0.3)",
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+                    display: "block",
+                  }}
+                />
               </div>
 
               {/* Floating badges */}
               <div className="float" style={{
-                position: "absolute", top: 20, right: 10,
+                position: "absolute", top: 20, right: 0,
                 background: "var(--yellow)", borderRadius: 14, padding: "8px 14px",
                 fontFamily: "Fredoka", fontWeight: 700, fontSize: 14,
                 border: "2.5px solid var(--purple-700)", boxShadow: "0 4px 0 var(--purple-700)",
@@ -144,9 +134,9 @@ export default function Landing() {
 
               <div className="float" style={{
                 position: "absolute", bottom: 40, left: 0,
-                background: "var(--purple-100)", borderRadius: 14, padding: "8px 14px",
-                fontFamily: "Fredoka", fontWeight: 700, fontSize: 14, color: "var(--purple-700)",
-                border: "2.5px solid var(--purple-700)", boxShadow: "0 4px 0 var(--purple-700)",
+                background: "white", borderRadius: 14, padding: "8px 14px",
+                fontFamily: "Fredoka", fontWeight: 700, fontSize: 14, color: "var(--purple-600)",
+                border: "2.5px solid var(--purple-600)", boxShadow: "0 4px 0 var(--purple-700)",
                 transform: "rotate(-5deg)", animationDelay: "1s",
               }}>
                 🎉 Lição concluída!
@@ -223,7 +213,7 @@ export default function Landing() {
       {/* CTA */}
       <section style={{ padding: "80px 0", textAlign: "center" }}>
         <div className="container">
-          <div style={{ fontSize: 64, marginBottom: 16 }}>🦦</div>
+          <img src="/mascot.jpg" alt="CurioNauta" style={{ width: 140, height: 140, borderRadius: "50%", objectFit: "cover", marginBottom: 16, border: "4px solid var(--purple-100)", boxShadow: "0 8px 0 var(--purple-700)" }} />
           <h2 style={{ fontSize: 44, marginBottom: 16 }}>Pronto para começar?</h2>
           <p style={{ fontSize: 20, color: "var(--ink-mute)", marginBottom: 32, maxWidth: 480, margin: "0 auto 32px" }}>
             Regista-te gratuitamente e começa a explorar o mundo das ciências hoje!

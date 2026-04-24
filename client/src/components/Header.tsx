@@ -36,7 +36,7 @@ export default function Header({ variant }: HeaderProps) {
       <div className="container site-header-inner">
         {/* Brand */}
         <Link href={isAuthenticated ? "/dashboard" : "/"} className="brand">
-          <img src="/logo.png" alt="CurioNauta" style={{ height: 44, width: "auto" }} />
+          <img src="/logo.png" alt="CurioNauta" style={{ height: 60, width: "auto" }} />
         </Link>
 
         {/* Nav links */}

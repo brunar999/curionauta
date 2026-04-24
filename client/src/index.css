@@ -7,40 +7,41 @@
 
 /* ── CSS Variables ──────────────────────────────────────────────────────────── */
 :root {
-  --green-500: #20B381;
-  --green-600: #17997D;
-  --green-400: #3ECFA5;
-  --green-100: #DCF5EB;
-  --green-50:  #EDFBF4;
+  /* Brand exact colors from SVG source */
+  --green-500: #09AA86;
+  --green-600: #077A60;
+  --green-400: #0DC49B;
+  --green-100: #C8F0E6;
+  --green-50:  #E8FAF5;
 
-  --purple-700: #4A1A99;
-  --purple-600: #6325C4;
-  --purple-500: #7B3EE0;
-  --purple-400: #9D6FF0;
-  --purple-100: #EBE1FB;
-  --purple-50:  #F6F1FE;
+  --purple-700: #4A1A7A;
+  --purple-600: #6B2698;
+  --purple-500: #8B3EC4;
+  --purple-400: #AB6EE0;
+  --purple-100: #EBD9F8;
+  --purple-50:  #F6EFFE;
 
   --cream:    #FFF9F0;
   --paper:    #FFFDF8;
-  --ink:      #1C1432;
-  --ink-soft: #3E3264;
+  --ink:      #0E2042;
+  --ink-soft: #2A3D6A;
   --ink-mute: #7C7496;
   --line:     #E9E3F2;
 
   --yellow:   #FFC94A;
-  --coral:    #FF7A6B;
+  --coral:    #FA697A;
   --sky:      #6FB9FF;
 
   --radius-lg: 28px;
   --radius-md: 20px;
   --radius-sm: 14px;
 
-  --shadow-sticker: 0 6px 0 #2A0E63;
-  --shadow-sticker-green: 0 6px 0 #0F6B55;
-  --shadow-card: 0 10px 30px rgba(74,26,153,0.08);
-  --shadow-card-hover: 0 18px 40px rgba(74,26,153,0.14);
+  --shadow-sticker: 0 6px 0 #4A1A7A;
+  --shadow-sticker-green: 0 6px 0 #077A60;
+  --shadow-card: 0 10px 30px rgba(107,38,152,0.08);
+  --shadow-card-hover: 0 18px 40px rgba(107,38,152,0.14);
 
-  --accent-hero-bg: var(--green-500);
+  --accent-hero-bg: var(--purple-600);
 }
 
 /* ── Base ──────────────────────────────────────────────────────────────────── */
