@@ -37,6 +37,7 @@ export const grades = pgTable("grades", {
   description: text("description"),
   icon: varchar("icon", { length: 10 }),
   color: varchar("color", { length: 20 }),
+  hidden: boolean("hidden").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

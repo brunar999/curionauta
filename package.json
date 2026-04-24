@@ -12,6 +12,7 @@
     "db:seed": "tsx server/seed.ts",
     "db:accounts": "tsx server/seed-accounts.ts",
     "db:lessons-corpo": "tsx server/seed-lessons-corpo.ts",
+    "db:grade1": "tsx server/seed-grade1-restructure.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

@@ -111,7 +111,7 @@ export async function deleteStudent(id: number): Promise<void> {
 
 // ── Grades ─────────────────────────────────────────────────────────────────────
 export async function getAllGrades(): Promise<Grade[]> {
-  return db.select().from(grades).orderBy(asc(grades.number));
+  return db.select().from(grades).where(eq(grades.hidden, false)).orderBy(asc(grades.number));
 }
 
 export async function getGradeById(id: number): Promise<Grade | undefined> {

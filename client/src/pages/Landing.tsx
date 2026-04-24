@@ -202,10 +202,14 @@ export default function Landing() {
             </p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
-            <GradePreviewCard number="1º" emoji="🌱" color="#20B381" themes={["Quem Sou Eu", "A Família", "A Natureza", "Os Meus Lugares", "Experiências"]} />
-            <GradePreviewCard number="2º" emoji="🌿" color="#6325C4" themes={["O Corpo Humano", "Seres Vivos", "A Água"]} />
-            <GradePreviewCard number="3º" emoji="🌳" color="#6FB9FF" themes={["O Sistema Solar", "Materiais"]} />
-            <GradePreviewCard number="4º" emoji="🚀" color="#FF7A6B" themes={["Portugal", "Sistemas do Corpo"]} />
+            <GradePreviewCard number="1º" emoji="🌱" color="#09AA86" themes={["Nós e a família", "Respeito pelos outros", "Diferentes lugares", "Cuidar de nós", "Descobrir o mundo", "O ambiente"]} />
+            {(["2º", "3º", "4º"] as const).map((n) => (
+              <div key={n} className="sticker-card" style={{ padding: 24, textAlign: "center", opacity: 0.55, position: "relative", overflow: "hidden" }}>
+                <div style={{ fontSize: 48, marginBottom: 8 }}>{n === "2º" ? "🌿" : n === "3º" ? "🌳" : "🚀"}</div>
+                <h3 style={{ fontSize: 22, marginBottom: 4 }}>{n} Ano</h3>
+                <span className="chip" style={{ fontSize: 12, background: "var(--line)", color: "var(--ink-mute)" }}>🔜 Em breve</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
