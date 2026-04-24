@@ -34,6 +34,7 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [totalAnswers, setTotalAnswers] = useState(0);
   const [quizComplete, setQuizComplete] = useState(false);
+  const [scoreAnim, setScoreAnim] = useState<{ delta: number; id: number } | null>(null);
 
   const { activeStudent } = useActiveStudent();
   const updateProgress = useUpdateProgress();
@@ -85,6 +86,8 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
     setCorrectAnswers(newCorrect);
 
     // Score: +10 correct, -7 wrong
+    const delta = isCorrect ? 10 : -7;
+    setScoreAnim({ delta, id: Date.now() });
     setScore((prev) => {
       const next = isCorrect ? Math.min(100, prev + 10) : Math.max(0, prev - 7);
       return next;
@@ -148,8 +151,35 @@ export default function MonthsQuiz({ lessonId, onComplete }: Props) {
       </div>
 
       {/* Progress bar */}
-      <div className="progress" style={{ height: 8, marginBottom: 28 }}>
-        <div className="progress-fill" style={{ width: `${score}%` }} />
+      <div style={{ position: "relative", marginBottom: 28 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+          <span style={{ fontFamily: "Fredoka", fontWeight: 700, fontSize: 16, color: score >= 70 ? "var(--green-600)" : "var(--purple-700)" }}>
+            {score}%
+          </span>
+        </div>
+        <div className="progress" style={{ height: 22, borderRadius: 999, border: "2px solid var(--line)" }}>
+          <div className="progress-fill" style={{ width: `${score}%`, borderRadius: 999 }} />
+        </div>
+        {scoreAnim && (
+          <div
+            key={scoreAnim.id}
+            style={{
+              position: "absolute",
+              left: `${Math.min(Math.max(score, 8), 92)}%`,
+              top: 0,
+              fontFamily: "Fredoka",
+              fontWeight: 800,
+              fontSize: 24,
+              color: scoreAnim.delta > 0 ? "var(--green-600)" : "var(--coral)",
+              pointerEvents: "none",
+              animation: `${scoreAnim.delta > 0 ? "score-rise" : "score-drop"} 1.1s ease forwards`,
+              zIndex: 10,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {scoreAnim.delta > 0 ? `+${scoreAnim.delta} ↑` : `${scoreAnim.delta} ↓`}
+          </div>
+        )}
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
